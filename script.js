@@ -1,25 +1,8 @@
-// A class to represent a Meal, storing its name, URL, and ingredients.
+// A class to represent a Meal, storing its name and ingredients.
 class Meal {
-    constructor(url, ingredients) {
-        this.url = url;
-        this.ingredients = ingredients.split(',').map(item => item.trim());
-        // Attempt to extract meal name from URL, or use a placeholder
-        this.name = this.extractMealName(url) || 'Meal Idea';
-    }
-
-    extractMealName(url) {
-        try {
-            const urlObj = new URL(url);
-            // Example for BBC Good Food
-            if (urlObj.hostname.includes('bbcgoodfood.com')) {
-                const parts = urlObj.pathname.split('/');
-                return parts[parts.length - 2]?.replace(/-/g, ' ');
-            }
-            // Add more specific logic for other sites here
-            return null;
-        } catch (e) {
-            return null;
-        }
+    constructor(name, ingredients) {
+        this.name = name;
+        this.ingredients = ingredients.split(',').map(item => item.trim().toLowerCase());
     }
 }
 
@@ -27,61 +10,174 @@ class Meal {
 const App = {
     meals: [],
     pantry: [],
-    
+    weeklyPlan: [], // New variable to store the current weekly plan
+    users: {},
+    currentUser: null,
+
     init() {
-        this.loadData();
-        this.renderMealIdeas();
-        this.renderPantry();
+        this.loadUsers();
+        this.checkLoginStatus();
         this.addEventListeners();
     },
 
-    loadData() {
-        this.meals = JSON.parse(localStorage.getItem('meals')) || [];
-        this.pantry = JSON.parse(localStorage.getItem('pantry')) || [];
+    loadUsers() {
+        this.users = JSON.parse(localStorage.getItem('users')) || {};
     },
 
-    saveData() {
-        localStorage.setItem('meals', JSON.stringify(this.meals));
-        localStorage.setItem('pantry', JSON.stringify(this.pantry));
+    saveUsers() {
+        localStorage.setItem('users', JSON.stringify(this.users));
+    },
+
+    checkLoginStatus() {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser && this.users[storedUser]) {
+            this.login(storedUser);
+        } else {
+            this.showLoggedOutView();
+        }
+    },
+
+    showLoggedInView() {
+        document.getElementById('logged-out-view').style.display = 'none';
+        document.getElementById('logged-in-view').style.display = 'block';
+        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('current-username').textContent = this.currentUser;
+        this.loadUserData();
+    },
+
+    showLoggedOutView() {
+        document.getElementById('logged-out-view').style.display = 'block';
+        document.getElementById('logged-in-view').style.display = 'none';
+        document.getElementById('app-content').style.display = 'none';
+    },
+
+    login(username) {
+        this.currentUser = username;
+        localStorage.setItem('currentUser', username);
+        this.showLoggedInView();
+        this.renderMealIdeas();
+        this.renderPantry();
+    },
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLoggedOutView();
+        this.meals = [];
+        this.pantry = [];
+    },
+
+    loadUserData() {
+        const userData = this.users[this.currentUser];
+        this.meals = userData.meals || [];
+        this.pantry = userData.pantry || [];
+    },
+
+    saveUserData() {
+        if (this.currentUser) {
+            this.users[this.currentUser] = {
+                password: this.users[this.currentUser].password,
+                meals: this.meals,
+                pantry: this.pantry
+            };
+            this.saveUsers();
+        }
     },
 
     addEventListeners() {
+        // Auth listeners
+        document.getElementById('login-form').addEventListener('submit', this.handleLogin.bind(this));
+        document.getElementById('register-form').addEventListener('submit', this.handleRegister.bind(this));
+        document.getElementById('logout-btn').addEventListener('click', this.logout.bind(this));
+        document.getElementById('show-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('register-form').style.display = 'flex';
+            document.getElementById('login-form').style.display = 'none';
+        });
+
+        // App listeners
         document.getElementById('add-meal-form').addEventListener('submit', this.handleAddMeal.bind(this));
         document.getElementById('add-pantry-form').addEventListener('submit', this.handleAddPantry.bind(this));
+        document.getElementById('clear-pantry-btn').addEventListener('click', this.handleClearPantry.bind(this));
         document.getElementById('generate-plan-btn').addEventListener('click', this.generateWeeklyPlan.bind(this));
+        document.getElementById('regenerate-plan-btn').addEventListener('click', this.generateWeeklyPlan.bind(this));
+        document.getElementById('generate-shopping-list-btn').addEventListener('click', this.generateShoppingList.bind(this));
+    },
+
+    handleLogin(event) {
+        event.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        if (this.users[username] && this.users[username].password === password) {
+            this.login(username);
+        } else {
+            alert('Invalid username or password.');
+        }
+    },
+
+    handleRegister(event) {
+        event.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const password = document.getElementById('register-password').value;
+        if (this.users[username]) {
+            alert('Username already exists.');
+        } else {
+            this.users[username] = { password, meals: [], pantry: [] };
+            this.saveUsers();
+            this.login(username);
+        }
     },
 
     handleAddMeal(event) {
         event.preventDefault();
-        const mealUrl = document.getElementById('meal-url').value;
+        const mealName = document.getElementById('meal-name').value;
         const mealIngredients = document.getElementById('meal-ingredients').value;
-        const newMeal = new Meal(mealUrl, mealIngredients);
+        const newMeal = new Meal(mealName, mealIngredients);
         this.meals.push(newMeal);
-        this.saveData();
+        this.saveUserData();
         this.renderMealIdeas();
         event.target.reset();
+    },
+
+    handleClearPantry() {
+        if (confirm('Are you sure you want to clear your pantry list?')) {
+            this.pantry = [];
+            document.getElementById('pantry-items').value = '';
+            this.saveUserData();
+            this.renderPantry();
+        }
+    },
+
+    renderMealIdeas() {
+        const container = document.getElementById('meal-ideas-container');
+        container.innerHTML = '';
+        this.meals.forEach((meal, index) => {
+            const mealTile = document.createElement('div');
+            mealTile.className = 'meal-tile';
+            mealTile.innerHTML = `
+                <h3>${meal.name}</h3>
+                <button class="remove-meal-btn" data-index="${index}">Remove</button>
+            `;
+            container.appendChild(mealTile);
+        });
+        document.querySelectorAll('.remove-meal-btn').forEach(button => {
+            button.addEventListener('click', this.handleRemoveMeal.bind(this));
+        });
+    },
+
+    handleRemoveMeal(event) {
+        const index = event.target.dataset.index;
+        this.meals.splice(index, 1);
+        this.saveUserData();
+        this.renderMealIdeas();
     },
 
     handleAddPantry(event) {
         event.preventDefault();
         const pantryItemsText = document.getElementById('pantry-items').value;
         this.pantry = pantryItemsText.split(',').map(item => item.trim().toLowerCase());
-        this.saveData();
+        this.saveUserData();
         this.renderPantry();
-    },
-
-    renderMealIdeas() {
-        const container = document.getElementById('meal-ideas-container');
-        container.innerHTML = '';
-        this.meals.forEach(meal => {
-            const mealTile = document.createElement('div');
-            mealTile.className = 'meal-tile';
-            mealTile.innerHTML = `
-                <h3>${meal.name}</h3>
-                <a href="${meal.url}" target="_blank">View Recipe</a>
-            `;
-            container.appendChild(mealTile);
-        });
     },
 
     renderPantry() {
@@ -104,25 +200,28 @@ const App = {
         
         // Prioritize meals based on pantry matches
         const mealScores = mealsToPlan.map(meal => {
-            const matches = meal.ingredients.filter(ing => this.pantry.includes(ing.toLowerCase()));
+            const matches = meal.ingredients.filter(ing => this.pantry.includes(ing));
             return { meal, score: matches.length };
         });
 
         // Sort by score (descending) and shuffle for randomness among equal scores
         mealScores.sort((a, b) => b.score - a.score || Math.random() - 0.5);
 
-        const weeklyPlan = mealScores.slice(0, 7).map(item => item.meal);
+        this.weeklyPlan = mealScores.slice(0, 7).map(item => item.meal);
         
         // Fallback for weeks with less than 7 meals
-        if (this.meals.length < 7) {
-            const availableMeals = this.meals.filter(meal => !weeklyPlan.includes(meal));
-            while (weeklyPlan.length < 7 && availableMeals.length > 0) {
-                const randomMeal = availableMeals.splice(Math.floor(Math.random() * availableMeals.length), 1)[0];
-                weeklyPlan.push(randomMeal);
+        const remainingMeals = mealsToPlan.filter(meal => !this.weeklyPlan.includes(meal));
+        while (this.weeklyPlan.length < 7 && remainingMeals.length > 0) {
+            const randomMeal = remainingMeals.splice(Math.floor(Math.random() * remainingMeals.length), 1)[0];
+            if (randomMeal) {
+                this.weeklyPlan.push(randomMeal);
             }
         }
         
-        this.renderWeeklyPlan(weeklyPlan);
+        this.renderWeeklyPlan(this.weeklyPlan);
+        document.getElementById('generate-plan-btn').style.display = 'none';
+        document.getElementById('regenerate-plan-btn').style.display = 'inline-block';
+        document.getElementById('generate-shopping-list-btn').style.display = 'inline-block';
     },
 
     renderWeeklyPlan(plan) {
@@ -136,8 +235,8 @@ const App = {
             mealTile.className = 'meal-tile';
             
             if (meal) {
-                const matches = meal.ingredients.filter(ing => this.pantry.includes(ing.toLowerCase()));
-                const nonMatches = meal.ingredients.filter(ing => !this.pantry.includes(ing.toLowerCase()));
+                const matches = meal.ingredients.filter(ing => this.pantry.includes(ing));
+                const nonMatches = meal.ingredients.filter(ing => !this.pantry.includes(ing));
 
                 const ingredientsHtml = `
                     ${matches.length > 0 ? `<p class="ingredient-info">Using: <span class="ingredient-match">${matches.join(', ')}</span></p>` : ''}
@@ -146,7 +245,7 @@ const App = {
 
                 mealTile.innerHTML = `
                     <div class="day-of-week">${day}</div>
-                    <h3><a href="${meal.url}" target="_blank">${meal.name}</a></h3>
+                    <h3>${meal.name}</h3>
                     ${ingredientsHtml}
                 `;
             } else {
@@ -154,6 +253,36 @@ const App = {
             }
             container.appendChild(mealTile);
         });
+        document.getElementById('shopping-list-section').style.display = 'none';
+    },
+    
+    generateShoppingList() {
+        const allNeededIngredients = [];
+        this.weeklyPlan.forEach(meal => {
+            if (meal) {
+                const needed = meal.ingredients.filter(ing => !this.pantry.includes(ing));
+                allNeededIngredients.push(...needed);
+            }
+        });
+        
+        // Remove duplicates using a Set
+        const uniqueIngredients = [...new Set(allNeededIngredients)];
+
+        const container = document.getElementById('shopping-list-container');
+        container.innerHTML = '';
+        if (uniqueIngredients.length > 0) {
+            uniqueIngredients.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                container.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.textContent = 'No ingredients needed this week!';
+            container.appendChild(li);
+        }
+        
+        document.getElementById('shopping-list-section').style.display = 'block';
     }
 };
 
