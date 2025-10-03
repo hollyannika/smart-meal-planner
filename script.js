@@ -10,11 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const shoppingListSection = document.getElementById('shopping-list-section');
     const shoppingListContainer = document.getElementById('shopping-list-container');
 
+    // Load meals from local storage or initialize an empty array if none exist.
     let meals = JSON.parse(localStorage.getItem('meals')) || [];
     let pantryIngredients = [];
     let currentWeeklyPlan = [];
 
-    // Helper function to render the list of added meals
+    // Helper function to render the list of added meals.
     function renderMeals() {
         mealListContainer.innerHTML = '';
         if (meals.length === 0) {
@@ -36,42 +37,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Function to handle adding a new meal
+    // Handle form submission for adding a new meal.
     addMealForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+        // Prevent the form from reloading the page, which would erase our data.
+        e.preventDefault(); 
         const mealName = document.getElementById('meal-name').value.trim();
         const mealIngredients = document.getElementById('meal-ingredients').value.trim().split(',').map(i => i.trim().toLowerCase());
 
         if (mealName && mealIngredients.length > 0) {
             meals.push({ name: mealName, ingredients: mealIngredients });
-            localStorage.setItem('meals', JSON.stringify(meals));
+            // Save the updated meals list to local storage.
+            localStorage.setItem('meals', JSON.stringify(meals)); 
             addMealForm.reset();
             renderMeals();
         }
     });
 
-    // Function to handle editing and deleting meals
+    // Handle editing and deleting meals.
     mealListContainer.addEventListener('click', (e) => {
         const target = e.target;
-        const index = target.dataset.index;
-
+        // Use event delegation to handle clicks on the buttons inside meal-items.
         if (target.classList.contains('delete-meal-btn')) {
+            const index = target.dataset.index;
             meals.splice(index, 1);
             localStorage.setItem('meals', JSON.stringify(meals));
             renderMeals();
         } else if (target.classList.contains('edit-meal-btn')) {
-            // A simple edit implementation: pre-fill form
+            const index = target.dataset.index;
             const mealToEdit = meals[index];
             document.getElementById('meal-name').value = mealToEdit.name;
             document.getElementById('meal-ingredients').value = mealToEdit.ingredients.join(', ');
-            // Remove the meal from the array so it can be re-added on form submission
+            // Remove the meal so the user can re-add it with new data.
             meals.splice(index, 1);
             localStorage.setItem('meals', JSON.stringify(meals));
             renderMeals();
         }
     });
 
-    // Function to generate the weekly meal plan
+    // Handle form submission for adding pantry ingredients and generating a plan.
     pantryForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const pantryInput = document.getElementById('pantry-ingredients').value.trim();
@@ -80,15 +83,20 @@ document.addEventListener('DOMContentLoaded', () => {
         pantrySection.style.display = 'none';
         weeklyPlanSection.style.display = 'block';
     });
-    
-    // Core logic for generating the meal plan
+
+    // Generate the weekly meal plan.
     function generateWeeklyPlan() {
+        if (meals.length === 0) {
+            weeklyMealsContainer.innerHTML = '<p>Please add some meals first!</p>';
+            return;
+        }
+        
+        // Prioritize meals that use at least one pantry ingredient.
         const matchingMeals = meals.filter(meal =>
             meal.ingredients.some(ingredient => pantryIngredients.includes(ingredient))
         );
 
-        // Prioritize meals that use pantry ingredients, but don't require them
-        // This is a simple logic. For more complex matching, you'd need a more advanced algorithm.
+        // Fall back to all meals if no matches are found.
         const potentialMeals = matchingMeals.length > 0 ? matchingMeals : meals;
         
         currentWeeklyPlan = [];
@@ -96,32 +104,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const usedMealIndices = new Set();
         let safetyCounter = 0;
 
-        for (let i = 0; i < 7; i++) {
-            if (potentialMeals.length === 0) break;
-
-            let randomIndex;
-            let meal;
-            do {
-                randomIndex = Math.floor(Math.random() * potentialMeals.length);
-                meal = potentialMeals[randomIndex];
-                safetyCounter++;
-                if (safetyCounter > potentialMeals.length * 2) {
-                    // Prevent infinite loops if fewer than 7 unique meals are available
-                    meal = potentialMeals[Math.floor(Math.random() * potentialMeals.length)];
-                    break;
-                }
-            } while (usedMealIndices.has(randomIndex));
-            
-            usedMealIndices.add(randomIndex);
-            currentWeeklyPlan.push(meal);
+        while (currentWeeklyPlan.length < 7 && safetyCounter < potentialMeals.length * 2) {
+            const randomIndex = Math.floor(Math.random() * potentialMeals.length);
+            // Ensure unique meals are suggested for each day.
+            if (!usedMealIndices.has(randomIndex)) {
+                currentWeeklyPlan.push(potentialMeals[randomIndex]);
+                usedMealIndices.add(randomIndex);
+            }
+            safetyCounter++;
         }
         
         renderWeeklyPlan(daysOfWeek);
     }
 
-    // Function to display the weekly meal plan
+    // Display the weekly meal plan.
     function renderWeeklyPlan(daysOfWeek) {
         weeklyMealsContainer.innerHTML = '';
+        if (currentWeeklyPlan.length === 0) {
+             weeklyMealsContainer.innerHTML = '<p>Could not generate a weekly plan. Please add more unique meals.</p>';
+             return;
+        }
+
         currentWeeklyPlan.forEach((meal, index) => {
             const mealDay = document.createElement('div');
             mealDay.classList.add('weekly-meal-day');
@@ -130,12 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Regenerate button functionality
+    // Regenerate button functionality.
     regenerateButton.addEventListener('click', generateWeeklyPlan);
 
-    // Generate shopping list
+    // Generate shopping list.
     generateListButton.addEventListener('click', () => {
-        const shoppingList = new Set();
         const haveIngredients = new Set(pantryIngredients);
         const needIngredients = new Set();
 
@@ -162,6 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     });
 
-    // Initial render
+    // Initial render when the page loads.
     renderMeals();
 });
