@@ -7,37 +7,52 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Smart Meal Planner</h1>
+    <div class="container">
+        <header>
+            <h1>My Smart Meal Planner</h1>
+            <p>Paste a recipe link, add your pantry items, and generate a meal plan that helps reduce waste!</p>
+        </header>
 
-    <!-- Section to add meals -->
-    <section>
-        <h2>Add Meal</h2>
-        <input type="text" id="mealName" placeholder="Meal Name">
-        <input type="text" id="mealIngredients" placeholder="Ingredients (comma separated)">
-        <button id="addMealBtn">Add Meal</button>
+        <!-- Section for adding new meal ideas -->
+        <section class="add-meal-section">
+            <h2>Add New Meal Idea</h2>
+            <form id="add-meal-form">
+                <input type="text" id="meal-url" placeholder="Recipe URL (e.g., BBC Good Food)" required>
+                <textarea id="meal-ingredients" placeholder="Manually paste ingredients here (comma-separated: e.g., pasta, tomatoes, garlic)" required></textarea>
+                <button type="submit">Add Meal Idea</button>
+            </form>
+        </section>
 
-        <h3>Meal List</h3>
-        <ul id="mealList"></ul>
-    </section>
+        <!-- Section for user's meal ideas -->
+        <section class="meal-ideas-section">
+            <h2>Your Meal Ideas</h2>
+            <div class="meal-ideas-container" id="meal-ideas-container">
+                <!-- Meal idea tiles will be dynamically added here -->
+            </div>
+        </section>
 
-    <!-- Section to add fridge/pantry items -->
-    <section>
-        <h2>Add Fridge Item</h2>
-        <input type="text" id="fridgeItem" placeholder="Fridge Item">
-        <button id="addFridgeBtn">Add Item</button>
+        <!-- Section for adding pantry items -->
+        <section class="pantry-section">
+            <h2>What's in your pantry?</h2>
+            <form id="add-pantry-form">
+                <textarea id="pantry-items" placeholder="Enter ingredients you have (comma-separated)" required></textarea>
+                <button type="submit">Update Pantry</button>
+            </form>
+            <div id="pantry-display">
+                <!-- Pantry items will be displayed here -->
+            </div>
+        </section>
 
-        <h3>Fridge Items</h3>
-        <ul id="fridgeList"></ul>
-    </section>
+        <!-- Section for the generated weekly meal plan -->
+        <section class="weekly-plan-section">
+            <h2>This Week's Meals</h2>
+            <button id="generate-plan-btn">Generate Weekly Plan</button>
+            <div class="weekly-plan-container" id="weekly-plan-container">
+                <!-- Weekly meal plan will be dynamically added here -->
+            </div>
+        </section>
+    </div>
 
-    <!-- Section for suggestions -->
-    <section>
-        <h2>Meal Suggestions</h2>
-        <button id="suggestBtn">Suggest Meals</button>
-        <ul id="suggestionsList"></ul>
-    </section>
-
-    <!-- Link to JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
