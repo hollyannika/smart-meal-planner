@@ -1,8 +1,11 @@
+/* === Base Styles === */
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
-  background-color: #f0f0f0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #fff8dc;
+  background-image: linear-gradient(45deg, #fff8dc 25%, #ffeb99 25%, #ffeb99 50%, #fff8dc 50%, #fff8dc 75%, #ffeb99 75%, #ffeb99 100%);
+  background-size: 40px 40px;
   color: #333;
 }
 
@@ -12,27 +15,35 @@ header {
 }
 
 header h1 {
-  font-size: 2.5em;
+  color: red;
+  font-size: 3em;
   margin-bottom: 5px;
 }
 
 header .tagline {
+  color: red;
   font-size: 1.2em;
-  color: #555;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
 
-section {
-  background-color: #fff;
+/* Section boxes */
+.section-box {
+  background-color: rgba(255,255,255,0.9);
   padding: 20px;
   margin-bottom: 25px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+/* Section titles */
 h2 {
+  color: #1e3c72; /* Blue section headers */
   margin-top: 0;
+  font-family: 'Patrick Hand', cursive;
 }
 
+/* Inputs and buttons */
 form input {
   width: 100%;
   padding: 10px;
@@ -45,40 +56,46 @@ form input {
 
 form button {
   padding: 10px 15px;
-  background-color: #4CAF50;
+  background-color: #1e3c72; /* Blue buttons */
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 form button:hover {
-  background-color: #45a049;
+  background-color: #1451a6;
 }
 
+.buttons button {
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+/* Lists */
 ul {
   list-style-type: none;
   padding-left: 0;
+  font-family: 'Patrick Hand', cursive;
+  background-color: #fff;
+  border: 1px dashed #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-image: linear-gradient(to bottom, transparent 95%, #ccc 95%);
+  background-size: 100% 24px; /* line spacing */
 }
 
 li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 0;
+  padding: 3px 0;
 }
 
 li button {
   margin-left: 10px;
-  padding: 4px 7px;
-  font-size: 0.85em;
+  padding: 3px 6px;
+  font-size: 0.9em;
   cursor: pointer;
-}
-
-.buttons {
-  margin-top: 10px;
-}
-
-.buttons button {
-  margin-right: 10px;
 }
