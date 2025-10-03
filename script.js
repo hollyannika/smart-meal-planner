@@ -1,4 +1,4 @@
-// === Initialize meals and ingredients ===
+// === Initialize meals and pantry ===
 let meals = JSON.parse(localStorage.getItem('meals')) || [];
 let haveIngredients = JSON.parse(localStorage.getItem('haveIngredients')) || [];
 
@@ -7,7 +7,7 @@ const haveList = document.getElementById('have-list');
 const suggestedList = document.getElementById('suggested-list');
 const shoppingListEl = document.getElementById('shopping-list');
 
-// === Helper functions ===
+// === Helper Functions ===
 function saveMeals() {
   localStorage.setItem('meals', JSON.stringify(meals));
 }
@@ -55,7 +55,7 @@ function renderHaveIngredients() {
   });
 }
 
-// === Edit/Delete Meal ===
+// === Edit/Delete Meals ===
 function editMeal(index) {
   const newName = prompt('Enter new meal name:', meals[index].name);
   if (!newName) return;
@@ -74,7 +74,7 @@ function deleteMeal(index) {
   renderMeals();
 }
 
-// === Add Meal ===
+// === Add Meals ===
 document.getElementById('meal-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const name = document.getElementById('meal-name').value.trim();
@@ -90,7 +90,7 @@ document.getElementById('meal-form').addEventListener('submit', (e) => {
   }
 });
 
-// === Add Ingredients You Have ===
+// === Add Pantry Ingredients ===
 document.getElementById('have-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const ingredient = document.getElementById('have-input').value.trim();
@@ -124,10 +124,9 @@ function suggestMeals() {
   return weekMeals;
 }
 
-// === Regenerate Button ===
+// === Buttons ===
 document.getElementById('regenerate-btn').addEventListener('click', suggestMeals);
 
-// === Generate Shopping List ===
 document.getElementById('generate-shopping-list-btn').addEventListener('click', () => {
   const weekMeals = suggestMeals();
   const allIngredients = new Set();
@@ -136,7 +135,7 @@ document.getElementById('generate-shopping-list-btn').addEventListener('click', 
     meal.ingredients.forEach(i => allIngredients.add(i));
   });
 
-  // Remove ingredients user already has
+  // Exclude ingredients user already has
   haveIngredients.forEach(i => allIngredients.delete(i));
 
   shoppingListEl.innerHTML = '';
@@ -147,6 +146,6 @@ document.getElementById('generate-shopping-list-btn').addEventListener('click', 
   });
 });
 
-// === Initial render ===
+// === Initial Render ===
 renderMeals();
 renderHaveIngredients();
