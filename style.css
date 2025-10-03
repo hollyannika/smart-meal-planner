@@ -1,38 +1,126 @@
-/* Basic reset */
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+:root {
+    --primary-color: #3f51b5;
+    --secondary-color: #f5f5f5;
+    --text-color: #333;
+    --tile-bg: #fff;
+    --border-color: #ccc;
+    --green-match: #4caf50;
+    --red-no-match: #f44336;
 }
 
-/* Headings */
-h1 {
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
     text-align: center;
+    margin-bottom: 40px;
+}
+
+h1, h2 {
+    color: var(--primary-color);
 }
 
 section {
-    margin-bottom: 30px;
-    padding: 10px;
-    border: 1px solid #ccc;
+    background-color: var(--tile-bg);
+    padding: 20px;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
 }
 
-/* Inputs and buttons */
-input {
-    padding: 5px;
-    margin: 5px 0;
+.add-meal-section form, .pantry-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, textarea, button {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
 }
 
 button {
-    padding: 5px 10px;
-    margin-left: 5px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* Lists */
-ul {
-    margin-top: 10px;
+button:hover {
+    background-color: #303f9f;
 }
 
-li {
+.meal-ideas-container, .weekly-plan-container {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.meal-tile {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-align: center;
+    background-color: #fafafa;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.meal-tile:hover {
+    transform: translateY(-5px);
+}
+
+.meal-tile h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.meal-tile .ingredient-info {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.weekly-plan-container .meal-tile {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.weekly-plan-container .meal-tile .day-of-week {
+    font-weight: bold;
+    color: var(--primary-color);
     margin-bottom: 5px;
+}
+
+.pantry-section #pantry-display {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+}
+
+.pantry-item {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 5px 8px;
+    border-radius: 12px;
+    margin: 5px;
+}
+
+.ingredient-match {
+    color: var(--green-match);
 }
