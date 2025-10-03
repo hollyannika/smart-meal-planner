@@ -10,91 +10,26 @@ class Meal {
 const App = {
     meals: [],
     pantry: [],
-    weeklyPlan: [], // New variable to store the current weekly plan
-    users: {},
-    currentUser: null,
+    weeklyPlan: [],
 
     init() {
-        this.loadUsers();
-        this.checkLoginStatus();
+        this.loadData();
         this.addEventListeners();
-    },
-
-    loadUsers() {
-        this.users = JSON.parse(localStorage.getItem('users')) || {};
-    },
-
-    saveUsers() {
-        localStorage.setItem('users', JSON.stringify(this.users));
-    },
-
-    checkLoginStatus() {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser && this.users[storedUser]) {
-            this.login(storedUser);
-        } else {
-            this.showLoggedOutView();
-        }
-    },
-
-    showLoggedInView() {
-        document.getElementById('logged-out-view').style.display = 'none';
-        document.getElementById('logged-in-view').style.display = 'block';
-        document.getElementById('app-content').style.display = 'block';
-        document.getElementById('current-username').textContent = this.currentUser;
-        this.loadUserData();
-    },
-
-    showLoggedOutView() {
-        document.getElementById('logged-out-view').style.display = 'block';
-        document.getElementById('logged-in-view').style.display = 'none';
-        document.getElementById('app-content').style.display = 'none';
-    },
-
-    login(username) {
-        this.currentUser = username;
-        localStorage.setItem('currentUser', username);
-        this.showLoggedInView();
         this.renderMealIdeas();
         this.renderPantry();
     },
 
-    logout() {
-        this.currentUser = null;
-        localStorage.removeItem('currentUser');
-        this.showLoggedOutView();
-        this.meals = [];
-        this.pantry = [];
+    loadData() {
+        this.meals = JSON.parse(localStorage.getItem('meals')) || [];
+        this.pantry = JSON.parse(localStorage.getItem('pantry')) || [];
     },
 
-    loadUserData() {
-        const userData = this.users[this.currentUser];
-        this.meals = userData.meals || [];
-        this.pantry = userData.pantry || [];
-    },
-
-    saveUserData() {
-        if (this.currentUser) {
-            this.users[this.currentUser] = {
-                password: this.users[this.currentUser].password,
-                meals: this.meals,
-                pantry: this.pantry
-            };
-            this.saveUsers();
-        }
+    saveData() {
+        localStorage.setItem('meals', JSON.stringify(this.meals));
+        localStorage.setItem('pantry', JSON.stringify(this.pantry));
     },
 
     addEventListeners() {
-        // Auth listeners
-        document.getElementById('login-form').addEventListener('submit', this.handleLogin.bind(this));
-        document.getElementById('register-form').addEventListener('submit', this.handleRegister.bind(this));
-        document.getElementById('logout-btn').addEventListener('click', this.logout.bind(this));
-        document.getElementById('show-register').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('register-form').style.display = 'flex';
-            document.getElementById('login-form').style.display = 'none';
-        });
-
         // App listeners
         document.getElementById('add-meal-form').addEventListener('submit', this.handleAddMeal.bind(this));
         document.getElementById('add-pantry-form').addEventListener('submit', this.handleAddPantry.bind(this));
@@ -104,37 +39,13 @@ const App = {
         document.getElementById('generate-shopping-list-btn').addEventListener('click', this.generateShoppingList.bind(this));
     },
 
-    handleLogin(event) {
-        event.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
-        if (this.users[username] && this.users[username].password === password) {
-            this.login(username);
-        } else {
-            alert('Invalid username or password.');
-        }
-    },
-
-    handleRegister(event) {
-        event.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
-        if (this.users[username]) {
-            alert('Username already exists.');
-        } else {
-            this.users[username] = { password, meals: [], pantry: [] };
-            this.saveUsers();
-            this.login(username);
-        }
-    },
-
     handleAddMeal(event) {
         event.preventDefault();
         const mealName = document.getElementById('meal-name').value;
         const mealIngredients = document.getElementById('meal-ingredients').value;
         const newMeal = new Meal(mealName, mealIngredients);
         this.meals.push(newMeal);
-        this.saveUserData();
+        this.saveData();
         this.renderMealIdeas();
         event.target.reset();
     },
@@ -143,7 +54,7 @@ const App = {
         if (confirm('Are you sure you want to clear your pantry list?')) {
             this.pantry = [];
             document.getElementById('pantry-items').value = '';
-            this.saveUserData();
+            this.saveData();
             this.renderPantry();
         }
     },
@@ -168,7 +79,7 @@ const App = {
     handleRemoveMeal(event) {
         const index = event.target.dataset.index;
         this.meals.splice(index, 1);
-        this.saveUserData();
+        this.saveData();
         this.renderMealIdeas();
     },
 
@@ -176,7 +87,7 @@ const App = {
         event.preventDefault();
         const pantryItemsText = document.getElementById('pantry-items').value;
         this.pantry = pantryItemsText.split(',').map(item => item.trim().toLowerCase());
-        this.saveUserData();
+        this.saveData();
         this.renderPantry();
     },
 
@@ -212,7 +123,7 @@ const App = {
         // Fallback for weeks with less than 7 meals
         const remainingMeals = mealsToPlan.filter(meal => !this.weeklyPlan.includes(meal));
         while (this.weeklyPlan.length < 7 && remainingMeals.length > 0) {
-            const randomMeal = remainingMeals.splice(Math.floor(Math.random() * remainingMeals.length), 1)[0];
+            const randomMeal = remainingMeals.splice(Math.floor(Math.random() * remainingMeals.length), 1);
             if (randomMeal) {
                 this.weeklyPlan.push(randomMeal);
             }
