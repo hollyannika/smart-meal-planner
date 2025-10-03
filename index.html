@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Meal Planner</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -13,27 +14,23 @@
   </header>
 
   <!-- Your Meal Ideas -->
-  <section id="meal-ideas-section">
+  <section class="section-box" id="meal-ideas-section">
     <h2>Your Meal Ideas</h2>
     <ul id="meal-list"></ul>
   </section>
 
   <!-- Add More Meals -->
-  <section id="add-meal-section">
+  <section class="section-box" id="add-meal-section">
     <h2>Add More Meals</h2>
     <form id="meal-form">
-      <label for="meal-name">Meal Name:</label>
-      <input type="text" id="meal-name" placeholder="e.g. Spaghetti Bolognese" required>
-
-      <label for="ingredients">Ingredients (comma-separated):</label>
-      <input type="text" id="ingredients" placeholder="e.g. pasta, tomato, beef" required>
-
+      <input type="text" id="meal-name" placeholder="Meal name" required>
+      <input type="text" id="ingredients" placeholder="Ingredients (comma-separated)" required>
       <button type="submit">Add Meal</button>
     </form>
   </section>
 
   <!-- Ingredients Already Have -->
-  <section id="have-ingredients-section">
+  <section class="section-box" id="have-ingredients-section">
     <h2>What do you have already?</h2>
     <form id="have-form">
       <input type="text" id="have-input" placeholder="Add ingredient" required>
@@ -43,7 +40,7 @@
   </section>
 
   <!-- Suggested Meals -->
-  <section id="suggested-meals-section">
+  <section class="section-box" id="suggested-meals-section">
     <h2>Suggested Meals for the Week</h2>
     <ul id="suggested-list"></ul>
     <div class="buttons">
@@ -53,7 +50,7 @@
   </section>
 
   <!-- Shopping List -->
-  <section id="shopping-list-section">
+  <section class="section-box" id="shopping-list-section">
     <h2>Shopping List</h2>
     <ul id="shopping-list"></ul>
   </section>
