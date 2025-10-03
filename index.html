@@ -10,47 +10,85 @@
     <div class="container">
         <header>
             <h1>My Smart Meal Planner</h1>
-            <p>Paste a recipe link, add your pantry items, and generate a meal plan that helps reduce waste!</p>
+            <p>Add your meal ideas and pantry items to generate a weekly plan that helps reduce waste!</p>
         </header>
 
-        <!-- Section for adding new meal ideas -->
-        <section class="add-meal-section">
-            <h2>Add New Meal Idea</h2>
-            <form id="add-meal-form">
-                <input type="text" id="meal-url" placeholder="Recipe URL (e.g., BBC Good Food)" required>
-                <textarea id="meal-ingredients" placeholder="Manually paste ingredients here (comma-separated: e.g., pasta, tomatoes, garlic)" required></textarea>
-                <button type="submit">Add Meal Idea</button>
-            </form>
-        </section>
-
-        <!-- Section for user's meal ideas -->
-        <section class="meal-ideas-section">
-            <h2>Your Meal Ideas</h2>
-            <div class="meal-ideas-container" id="meal-ideas-container">
-                <!-- Meal idea tiles will be dynamically added here -->
+        <!-- Login and registration section -->
+        <section class="auth-section">
+            <div id="logged-out-view">
+                <h2>Login / Register</h2>
+                <form id="login-form">
+                    <input type="text" id="login-username" placeholder="Username" required>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <p>New user? <a href="#" id="show-register">Register here</a></p>
+                <form id="register-form" style="display: none;">
+                    <input type="text" id="register-username" placeholder="Username" required>
+                    <input type="password" id="register-password" placeholder="Password" required>
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+            <div id="logged-in-view" style="display: none;">
+                <h2>Welcome, <span id="current-username"></span>!</h2>
+                <button id="logout-btn">Logout</button>
             </div>
         </section>
 
-        <!-- Section for adding pantry items -->
-        <section class="pantry-section">
-            <h2>What's in your pantry?</h2>
-            <form id="add-pantry-form">
-                <textarea id="pantry-items" placeholder="Enter ingredients you have (comma-separated)" required></textarea>
-                <button type="submit">Update Pantry</button>
-            </form>
-            <div id="pantry-display">
-                <!-- Pantry items will be displayed here -->
-            </div>
-        </section>
+        <!-- All other sections (Add Meal, Pantry, etc.) are initially hidden -->
+        <div id="app-content" style="display: none;">
+            <!-- Section for adding new meal ideas -->
+            <section class="add-meal-section">
+                <h2>Add New Meal Idea</h2>
+                <form id="add-meal-form">
+                    <input type="text" id="meal-name" placeholder="Meal Name" required>
+                    <textarea id="meal-ingredients" placeholder="Ingredients (comma-separated: e.g., pasta, tomatoes, garlic)" required></textarea>
+                    <button type="submit">Add Meal Idea</button>
+                </form>
+            </section>
 
-        <!-- Section for the generated weekly meal plan -->
-        <section class="weekly-plan-section">
-            <h2>This Week's Meals</h2>
-            <button id="generate-plan-btn">Generate Weekly Plan</button>
-            <div class="weekly-plan-container" id="weekly-plan-container">
-                <!-- Weekly meal plan will be dynamically added here -->
-            </div>
-        </section>
+            <!-- Section for user's meal ideas -->
+            <section class="meal-ideas-section">
+                <h2>Your Meal Ideas</h2>
+                <div class="meal-ideas-container" id="meal-ideas-container">
+                    <!-- Meal idea tiles will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Section for adding pantry items -->
+            <section class="pantry-section">
+                <h2>What's in your pantry?</h2>
+                <form id="add-pantry-form">
+                    <textarea id="pantry-items" placeholder="Enter ingredients you have (comma-separated)" required></textarea>
+                    <button type="submit">Update Pantry</button>
+                </form>
+                <button id="clear-pantry-btn">Clear Pantry List</button>
+                <div id="pantry-display">
+                    <!-- Pantry items will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Section for the generated weekly meal plan -->
+            <section class="weekly-plan-section">
+                <h2>This Week's Meals</h2>
+                <div class="weekly-plan-buttons">
+                    <button id="generate-plan-btn">Generate Weekly Plan</button>
+                    <button id="regenerate-plan-btn" style="display:none;">Regenerate</button>
+                    <button id="generate-shopping-list-btn" style="display:none;">Generate Shopping List</button>
+                </div>
+                <div class="weekly-plan-container" id="weekly-plan-container">
+                    <!-- Weekly meal plan will be dynamically added here -->
+                </div>
+            </section>
+            
+            <!-- Section for the generated shopping list -->
+            <section id="shopping-list-section" style="display:none;">
+                <h2>Your Shopping List</h2>
+                <ul id="shopping-list-container">
+                    <!-- The shopping list will be displayed here -->
+                </ul>
+            </section>
+        </div>
     </div>
 
     <script src="script.js"></script>
