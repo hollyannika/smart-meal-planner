@@ -1,169 +1,152 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const mealListContainer = document.getElementById('meals-container');
-    const addMealForm = document.getElementById('add-meal-form');
-    const pantryForm = document.getElementById('pantry-form');
-    const pantrySection = document.getElementById('pantry-section');
-    const weeklyPlanSection = document.getElementById('weekly-plan-section');
-    const weeklyMealsContainer = document.getElementById('weekly-meals-container');
-    const regenerateButton = document.getElementById('regenerate-button');
-    const generateListButton = document.getElementById('generate-list-button');
-    const shoppingListSection = document.getElementById('shopping-list-section');
-    const shoppingListContainer = document.getElementById('shopping-list-container');
+// === Initialize meals and ingredients ===
+let meals = JSON.parse(localStorage.getItem('meals')) || [];
+let haveIngredients = JSON.parse(localStorage.getItem('haveIngredients')) || [];
 
-    // Load meals from local storage or initialize an empty array if none exist.
-    let meals = JSON.parse(localStorage.getItem('meals')) || [];
-    let pantryIngredients = [];
-    let currentWeeklyPlan = [];
+const mealList = document.getElementById('meal-list');
+const haveList = document.getElementById('have-list');
+const suggestedList = document.getElementById('suggested-list');
+const shoppingListEl = document.getElementById('shopping-list');
 
-    // Helper function to render the list of added meals.
-    function renderMeals() {
-        mealListContainer.innerHTML = '';
-        if (meals.length === 0) {
-            mealListContainer.innerHTML = '<p>No meals added yet.</p>';
-            return;
-        }
+// === Helper functions ===
+function saveMeals() {
+  localStorage.setItem('meals', JSON.stringify(meals));
+}
 
-        meals.forEach((meal, index) => {
-            const mealItem = document.createElement('div');
-            mealItem.classList.add('meal-item');
-            mealItem.innerHTML = `
-                <span>${meal.name}</span>
-                <div>
-                    <button class="edit-meal-btn" data-index="${index}">Edit</button>
-                    <button class="delete-meal-btn" data-index="${index}">Delete</button>
-                </div>
-            `;
-            mealListContainer.appendChild(mealItem);
-        });
-    }
+function saveHaveIngredients() {
+  localStorage.setItem('haveIngredients', JSON.stringify(haveIngredients));
+}
 
-    // Handle form submission for adding a new meal.
-    addMealForm.addEventListener('submit', (e) => {
-        // Prevent the form from reloading the page, which would erase our data.
-        e.preventDefault(); 
-        const mealName = document.getElementById('meal-name').value.trim();
-        const mealIngredients = document.getElementById('meal-ingredients').value.trim().split(',').map(i => i.trim().toLowerCase());
+function renderMeals() {
+  mealList.innerHTML = '';
+  meals.forEach((meal, index) => {
+    const li = document.createElement('li');
+    li.textContent = meal.name;
 
-        if (mealName && mealIngredients.length > 0) {
-            meals.push({ name: mealName, ingredients: mealIngredients });
-            // Save the updated meals list to local storage.
-            localStorage.setItem('meals', JSON.stringify(meals)); 
-            addMealForm.reset();
-            renderMeals();
-        }
-    });
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => editMeal(index);
 
-    // Handle editing and deleting meals.
-    mealListContainer.addEventListener('click', (e) => {
-        const target = e.target;
-        // Use event delegation to handle clicks on the buttons inside meal-items.
-        if (target.classList.contains('delete-meal-btn')) {
-            const index = target.dataset.index;
-            meals.splice(index, 1);
-            localStorage.setItem('meals', JSON.stringify(meals));
-            renderMeals();
-        } else if (target.classList.contains('edit-meal-btn')) {
-            const index = target.dataset.index;
-            const mealToEdit = meals[index];
-            document.getElementById('meal-name').value = mealToEdit.name;
-            document.getElementById('meal-ingredients').value = mealToEdit.ingredients.join(', ');
-            // Remove the meal so the user can re-add it with new data.
-            meals.splice(index, 1);
-            localStorage.setItem('meals', JSON.stringify(meals));
-            renderMeals();
-        }
-    });
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => deleteMeal(index);
 
-    // Handle form submission for adding pantry ingredients and generating a plan.
-    pantryForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const pantryInput = document.getElementById('pantry-ingredients').value.trim();
-        pantryIngredients = pantryInput.split(',').map(i => i.trim().toLowerCase());
-        generateWeeklyPlan();
-        pantrySection.style.display = 'none';
-        weeklyPlanSection.style.display = 'block';
-    });
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+    mealList.appendChild(li);
+  });
+}
 
-    // Generate the weekly meal plan.
-    function generateWeeklyPlan() {
-        if (meals.length === 0) {
-            weeklyMealsContainer.innerHTML = '<p>Please add some meals first!</p>';
-            return;
-        }
-        
-        // Prioritize meals that use at least one pantry ingredient.
-        const matchingMeals = meals.filter(meal =>
-            meal.ingredients.some(ingredient => pantryIngredients.includes(ingredient))
-        );
+function renderHaveIngredients() {
+  haveList.innerHTML = '';
+  haveIngredients.forEach((ingredient, index) => {
+    const li = document.createElement('li');
+    li.textContent = ingredient;
 
-        // Fall back to all meals if no matches are found.
-        const potentialMeals = matchingMeals.length > 0 ? matchingMeals : meals;
-        
-        currentWeeklyPlan = [];
-        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const usedMealIndices = new Set();
-        let safetyCounter = 0;
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = () => {
+      haveIngredients.splice(index, 1);
+      saveHaveIngredients();
+      renderHaveIngredients();
+    };
 
-        while (currentWeeklyPlan.length < 7 && safetyCounter < potentialMeals.length * 2) {
-            const randomIndex = Math.floor(Math.random() * potentialMeals.length);
-            // Ensure unique meals are suggested for each day.
-            if (!usedMealIndices.has(randomIndex)) {
-                currentWeeklyPlan.push(potentialMeals[randomIndex]);
-                usedMealIndices.add(randomIndex);
-            }
-            safetyCounter++;
-        }
-        
-        renderWeeklyPlan(daysOfWeek);
-    }
+    li.appendChild(deleteBtn);
+    haveList.appendChild(li);
+  });
+}
 
-    // Display the weekly meal plan.
-    function renderWeeklyPlan(daysOfWeek) {
-        weeklyMealsContainer.innerHTML = '';
-        if (currentWeeklyPlan.length === 0) {
-             weeklyMealsContainer.innerHTML = '<p>Could not generate a weekly plan. Please add more unique meals.</p>';
-             return;
-        }
+// === Edit/Delete Meal ===
+function editMeal(index) {
+  const newName = prompt('Enter new meal name:', meals[index].name);
+  if (!newName) return;
 
-        currentWeeklyPlan.forEach((meal, index) => {
-            const mealDay = document.createElement('div');
-            mealDay.classList.add('weekly-meal-day');
-            mealDay.innerHTML = `<strong>${daysOfWeek[index]}:</strong> ${meal.name}`;
-            weeklyMealsContainer.appendChild(mealDay);
-        });
-    }
+  const newIngredients = prompt('Enter ingredients (comma-separated):', meals[index].ingredients.join(','));
+  if (!newIngredients) return;
 
-    // Regenerate button functionality.
-    regenerateButton.addEventListener('click', generateWeeklyPlan);
+  meals[index] = { name: newName, ingredients: newIngredients.split(',').map(i => i.trim()) };
+  saveMeals();
+  renderMeals();
+}
 
-    // Generate shopping list.
-    generateListButton.addEventListener('click', () => {
-        const haveIngredients = new Set(pantryIngredients);
-        const needIngredients = new Set();
+function deleteMeal(index) {
+  meals.splice(index, 1);
+  saveMeals();
+  renderMeals();
+}
 
-        currentWeeklyPlan.forEach(meal => {
-            meal.ingredients.forEach(ingredient => {
-                if (!haveIngredients.has(ingredient)) {
-                    needIngredients.add(ingredient);
-                }
-            });
-        });
+// === Add Meal ===
+document.getElementById('meal-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('meal-name').value.trim();
+  const ingredients = document.getElementById('ingredients').value.trim().split(',').map(i => i.trim());
 
-        shoppingListSection.style.display = 'block';
-        shoppingListContainer.innerHTML = `
-            <div class="shopping-list">
-                <p class="list-header">What you need:</p>
-                <ul>
-                    ${Array.from(needIngredients).map(item => `<li>${item}</li>`).join('')}
-                </ul>
-                <p class="list-header">What you already have:</p>
-                <ul>
-                    ${Array.from(haveIngredients).map(item => `<li>${item}</li>`).join('')}
-                </ul>
-            </div>
-        `;
-    });
-
-    // Initial render when the page loads.
+  if (name && ingredients.length) {
+    meals.push({ name, ingredients });
+    saveMeals();
     renderMeals();
+
+    document.getElementById('meal-name').value = '';
+    document.getElementById('ingredients').value = '';
+  }
 });
+
+// === Add Ingredients You Have ===
+document.getElementById('have-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const ingredient = document.getElementById('have-input').value.trim();
+  if (ingredient && !haveIngredients.includes(ingredient)) {
+    haveIngredients.push(ingredient);
+    saveHaveIngredients();
+    renderHaveIngredients();
+  }
+  document.getElementById('have-input').value = '';
+});
+
+// === Suggest 7 Meals ===
+function suggestMeals() {
+  suggestedList.innerHTML = '';
+  if (meals.length === 0) return [];
+
+  const shuffled = [...meals].sort(() => 0.5 - Math.random());
+  const weekMeals = [];
+
+  for (let meal of shuffled) {
+    if (weekMeals.length >= 7) break;
+    if (!weekMeals.includes(meal)) weekMeals.push(meal);
+  }
+
+  weekMeals.forEach(meal => {
+    const li = document.createElement('li');
+    li.textContent = meal.name + ': ' + meal.ingredients.join(', ');
+    suggestedList.appendChild(li);
+  });
+
+  return weekMeals;
+}
+
+// === Regenerate Button ===
+document.getElementById('regenerate-btn').addEventListener('click', suggestMeals);
+
+// === Generate Shopping List ===
+document.getElementById('generate-shopping-list-btn').addEventListener('click', () => {
+  const weekMeals = suggestMeals();
+  const allIngredients = new Set();
+
+  weekMeals.forEach(meal => {
+    meal.ingredients.forEach(i => allIngredients.add(i));
+  });
+
+  // Remove ingredients user already has
+  haveIngredients.forEach(i => allIngredients.delete(i));
+
+  shoppingListEl.innerHTML = '';
+  allIngredients.forEach(i => {
+    const li = document.createElement('li');
+    li.textContent = i;
+    shoppingListEl.appendChild(li);
+  });
+});
+
+// === Initial render ===
+renderMeals();
+renderHaveIngredients();
