@@ -1,0 +1,38 @@
+/* Basic reset */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+/* Headings */
+h1 {
+    text-align: center;
+}
+
+section {
+    margin-bottom: 30px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+/* Inputs and buttons */
+input {
+    padding: 5px;
+    margin: 5px 0;
+}
+
+button {
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* Lists */
+ul {
+    margin-top: 10px;
+}
+
+li {
+    margin-bottom: 5px;
+}
