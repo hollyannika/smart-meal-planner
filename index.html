@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meal Planner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Smart Meal Planner</h1>
+
+    <!-- Section to add meals -->
+    <section>
+        <h2>Add Meal</h2>
+        <input type="text" id="mealName" placeholder="Meal Name">
+        <input type="text" id="mealIngredients" placeholder="Ingredients (comma separated)">
+        <button id="addMealBtn">Add Meal</button>
+
+        <h3>Meal List</h3>
+        <ul id="mealList"></ul>
+    </section>
+
+    <!-- Section to add fridge/pantry items -->
+    <section>
+        <h2>Add Fridge Item</h2>
+        <input type="text" id="fridgeItem" placeholder="Fridge Item">
+        <button id="addFridgeBtn">Add Item</button>
+
+        <h3>Fridge Items</h3>
+        <ul id="fridgeList"></ul>
+    </section>
+
+    <!-- Section for suggestions -->
+    <section>
+        <h2>Meal Suggestions</h2>
+        <button id="suggestBtn">Suggest Meals</button>
+        <ul id="suggestionsList"></ul>
+    </section>
+
+    <!-- Link to JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
