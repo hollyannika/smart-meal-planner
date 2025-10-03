@@ -1,75 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Meal Planner</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Meal Planner</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Smart Meal Planner</h1>
-        <p>From pantry to plate: effortless meal planning that saves food and time.</p>
-    </header>
+  <header>
+    <h1>Smart Meal Planner</h1>
+    <p class="tagline">From pantry to plate: effortless meal planning that saves food and time.</p>
+  </header>
 
-    <main>
-        <!-- Meals List Section -->
-        <section id="meal-list-section">
-            <h2>Your Meal Ideas</h2>
-            <div id="meals-container">
-                <!-- Meals will be dynamically added here by JavaScript -->
-            </div>
-        </section>
+  <!-- Your Meal Ideas -->
+  <section id="meal-ideas-section">
+    <h2>Your Meal Ideas</h2>
+    <ul id="meal-list"></ul>
+  </section>
 
-        <!-- Add Meals Section -->
-        <section id="add-meal-section">
-            <h2>Add More Meals</h2>
-            <form id="add-meal-form">
-                <div class="form-group">
-                    <label for="meal-name">Meal Name:</label>
-                    <input type="text" id="meal-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="meal-ingredients">Ingredients (comma separated):</label>
-                    <input type="text" id="meal-ingredients" required>
-                </div>
-                <button type="submit">Add Meal</button>
-            </form>
-        </section>
-        
-        <!-- Pantry and Planning Section -->
-        <section id="pantry-section">
-            <h2>What do you have already?</h2>
-            <form id="pantry-form">
-                <div class="form-group">
-                    <label for="pantry-ingredients">Ingredients (comma separated):</label>
-                    <input type="text" id="pantry-ingredients" required>
-                </div>
-                <button type="submit">Generate Weekly Plan</button>
-            </form>
-        </section>
+  <!-- Add More Meals -->
+  <section id="add-meal-section">
+    <h2>Add More Meals</h2>
+    <form id="meal-form">
+      <label for="meal-name">Meal Name:</label>
+      <input type="text" id="meal-name" placeholder="e.g. Spaghetti Bolognese" required>
 
-        <!-- Weekly Plan Section -->
-        <section id="weekly-plan-section" style="display:none;">
-            <h2>Your Weekly Plan</h2>
-            <div id="weekly-meals-container">
-                <!-- Weekly meal suggestions will be dynamically added here -->
-            </div>
-            <div class="plan-actions">
-                <button id="regenerate-button">Regenerate</button>
-                <button id="generate-list-button">Generate Shopping List</button>
-            </div>
-        </section>
+      <label for="ingredients">Ingredients (comma-separated):</label>
+      <input type="text" id="ingredients" placeholder="e.g. pasta, tomato, beef" required>
 
-        <!-- Shopping List Section -->
-        <section id="shopping-list-section" style="display:none;">
-            <h2>Shopping List</h2>
-            <div id="shopping-list-container">
-                <!-- The final shopping list will be added here -->
-            </div>
-        </section>
-    </main>
-    
-    <script src="script.js"></script>
+      <button type="submit">Add Meal</button>
+    </form>
+  </section>
+
+  <!-- Ingredients Already Have -->
+  <section id="have-ingredients-section">
+    <h2>What do you have already?</h2>
+    <form id="have-form">
+      <input type="text" id="have-input" placeholder="Add ingredient" required>
+      <button type="submit">Add</button>
+    </form>
+    <ul id="have-list"></ul>
+  </section>
+
+  <!-- Suggested Meals -->
+  <section id="suggested-meals-section">
+    <h2>Suggested Meals for the Week</h2>
+    <ul id="suggested-list"></ul>
+    <div class="buttons">
+      <button id="regenerate-btn">Regenerate Suggestions</button>
+      <button id="generate-shopping-list-btn">Generate Shopping List</button>
+    </div>
+  </section>
+
+  <!-- Shopping List -->
+  <section id="shopping-list-section">
+    <h2>Shopping List</h2>
+    <ul id="shopping-list"></ul>
+  </section>
+
+  <script src="script.js"></script>
 </body>
 </html>
